@@ -1,0 +1,64 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build Spring Boot project",
+			"command": "./mvnw.cmd -q -e -DskipTests package",
+			"args": [],
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": [
+				"$gcc"
+			]
+		},
+		{
+			"label": "Run App (No Tests)",
+			"type": "shell",
+			"command": "mvn spring-boot:run \"-Dmaven.test.skip=true\"",
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Run App (No Tests NO Data)",
+			"type": "shell",
+			"command": "mvn spring-boot:run \"-Dmaven.test.skip=true\" \"-Dspring.profiles.active=no-data\"",
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Run App (Direct Java)",
+			"type": "shell",
+			"command": "mvn compile -Dmaven.test.skip=true -q && java -cp \"target/classes;target/dependency/*\" com.restacademy.RestAcademyApplication",
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Run Unit Tests",
+			"type": "shell",
+			"command": "mvn test",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Run Integration Tests",
+			"type": "shell",
+			"command": "mvn test -Dtest=**/*IntegrationTest",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Test & Build",
+			"type": "shell",
+			"command": "mvn clean test compile",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
