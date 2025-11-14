@@ -5,6 +5,7 @@ import com.restacademy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,10 +17,12 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DataInitializer(UserRepository userRepository) {
+    public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -31,15 +34,18 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void loadSampleData() {
+        // Default password for all sample users: "password123"
+        String encodedPassword = passwordEncoder.encode("password123");
+        
         // Create sample users
-        User user1 = new User("John", "Doe", "john.doe@example.com", 28, "Engineering");
-        User user2 = new User("Jane", "Smith", "jane.smith@example.com", 32, "Marketing");
-        User user3 = new User("Mike", "Johnson", "mike.johnson@example.com", 25, "Engineering");
-        User user4 = new User("Sarah", "Wilson", "sarah.wilson@example.com", 30, "HR");
-        User user5 = new User("David", "Brown", "david.brown@example.com", 35, "Finance");
-        User user6 = new User("Emily", "Davis", "emily.davis@example.com", 27, "Marketing");
-        User user7 = new User("Chris", "Miller", "chris.miller@example.com", 29, "Engineering");
-        User user8 = new User("Lisa", "Anderson", "lisa.anderson@example.com", 31, "Sales");
+        User user1 = new User("John", "Doe", "john.doe@example.com", encodedPassword, 28, "Engineering");
+        User user2 = new User("Jane", "Smith", "jane.smith@example.com", encodedPassword, 32, "Marketing");
+        User user3 = new User("Mike", "Johnson", "mike.johnson@example.com", encodedPassword, 25, "Engineering");
+        User user4 = new User("Sarah", "Wilson", "sarah.wilson@example.com", encodedPassword, 30, "HR");
+        User user5 = new User("David", "Brown", "david.brown@example.com", encodedPassword, 35, "Finance");
+        User user6 = new User("Emily", "Davis", "emily.davis@example.com", encodedPassword, 27, "Marketing");
+        User user7 = new User("Chris", "Miller", "chris.miller@example.com", encodedPassword, 29, "Engineering");
+        User user8 = new User("Lisa", "Anderson", "lisa.anderson@example.com", encodedPassword, 31, "Sales");
 
         // Save all users
         userRepository.save(user1);
@@ -53,5 +59,6 @@ public class DataInitializer implements CommandLineRunner {
 
         System.out.println("✅ Sample data loaded successfully!");
         System.out.println("📊 Total users created: " + userRepository.count());
+        System.out.println("🔐 Default password for all users: password123");
     }
 }

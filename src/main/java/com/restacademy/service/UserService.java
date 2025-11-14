@@ -1,5 +1,6 @@
 package com.restacademy.service;
 
+import com.restacademy.dto.RegisterRequest;
 import com.restacademy.dto.UserCreateRequest;
 import com.restacademy.dto.UserResponse;
 import com.restacademy.dto.UserUpdateRequest;
@@ -10,6 +11,10 @@ import com.restacademy.exception.DuplicateResourceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +23,48 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    /**
+     * Load user by username (email) for Spring Security
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+    }
+
+    /**
+     * Register a new user
+     * @param registerRequest the registration request
+     * @return created user response
+     */
+    public UserResponse registerUser(RegisterRequest registerRequest) {
+        // Check if email already exists
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new DuplicateResourceException("Email already exists: " + registerRequest.getEmail());
+        }
+
+        User user = new User(
+            registerRequest.getFirstName(),
+            registerRequest.getLastName(),
+            registerRequest.getEmail(),
+            passwordEncoder.encode(registerRequest.getPassword()),
+            registerRequest.getAge(),
+            registerRequest.getDepartment()
+        );
+
+        User savedUser = userRepository.save(user);
+        return new UserResponse(savedUser);
     }
 
     /**
